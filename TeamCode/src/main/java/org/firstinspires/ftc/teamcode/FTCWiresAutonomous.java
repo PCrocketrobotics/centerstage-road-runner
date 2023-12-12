@@ -50,7 +50,6 @@ import java.util.List;
  */
 @Autonomous(name = "FTC Wires Autonomous Mode", group = "00-Autonomous", preselectTeleOp = "FTC Wires TeleOp")
 public class FTCWiresAutonomous extends LinearOpMode {
-
     public static String TEAM_NAME = "EDIT TEAM NAME"; //TODO: Enter team Name
     public static int TEAM_NUMBER = 0; //TODO: Enter team Number
 
