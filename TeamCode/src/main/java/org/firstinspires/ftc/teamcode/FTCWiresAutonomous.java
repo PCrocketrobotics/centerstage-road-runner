@@ -64,6 +64,8 @@ public class FTCWiresAutonomous extends LinearOpMode {
     //Vision parameters
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
+    private static final String TFOD_MODEL_ASSET = "BothScoringElement.tflite";
+    private static final String[] LABELS = {"BGE","RGE"};
     private Arm_centerSTAGE Arm;
 
     //Define and declare Robot Starting Locations
@@ -329,8 +331,12 @@ public class FTCWiresAutonomous extends LinearOpMode {
     private void initTfod() {
 
         // Create the TensorFlow processor the easy way.
-        tfod = TfodProcessor.easyCreateWithDefaults();
-
+        //tfod = TfodProcessor.easyCreateWithDefaults();
+        tfod = new TfodProcessor.Builder()
+                .setModelAssetName(TFOD_MODEL_ASSET)
+                //.setModelFileName(TFOD_MODEL_ASSET)
+                .setModelLabels(LABELS)
+                .build();
         // Create the vision portal the easy way.
         if (USE_WEBCAM) {
             visionPortal = VisionPortal.easyCreateWithDefaults(
@@ -371,7 +377,7 @@ public class FTCWiresAutonomous extends LinearOpMode {
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
 
             if (startPosition == START_POSITION.RED_LEFT || startPosition == START_POSITION.BLUE_LEFT) {
-                if (recognition.getLabel() == "Pixel") {
+                if (recognition.getLabel() == "BGE" || recognition.getLabel() == "RGE") {
                     if (x < 200) {
                         identifiedSpikeMarkLocation = IDENTIFIED_SPIKE_MARK_LOCATION.LEFT;
                     } else {
@@ -379,7 +385,7 @@ public class FTCWiresAutonomous extends LinearOpMode {
                     }
                 }
             } else { //RED_RIGHT or BLUE_RIGHT
-                if (recognition.getLabel() == "Pixel") {
+                if (recognition.getLabel() == "BGE" || recognition.getLabel() == "RGE") {
                     if (x < 200) {
                         identifiedSpikeMarkLocation = IDENTIFIED_SPIKE_MARK_LOCATION.MIDDLE;
                     } else {
