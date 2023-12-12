@@ -30,11 +30,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.util.ElapsedTime.Resolution.SECONDS;
-
+import org.firstinspires.ftc.teamcode.Arm_centerSTAGE;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -53,12 +56,15 @@ public class FTCWiresAutonomous extends LinearOpMode {
     //Test
     public static String TEAM_NAME = "EDIT TEAM NAME"; //TODO: Enter team Name
     public static int TEAM_NUMBER = 0; //TODO: Enter team Number
-
+    public DcMotor Arm_liftMotor;
+    public DcMotor Pixle_SuckUP;
+    public Servo Pixle_drop;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
     //Vision parameters
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
+    private Arm_centerSTAGE Arm;
 
     //Define and declare Robot Starting Locations
     public enum START_POSITION{
@@ -385,5 +391,32 @@ public class FTCWiresAutonomous extends LinearOpMode {
         }   // end for() loop
 
     }   // end method runTfodTensorFlow()
+    public void initIntake(){
+        Arm_liftMotor = hardwareMap.get(DcMotor.class, "armlift");
+        Pixle_SuckUP = hardwareMap.get(DcMotor.class, "Pixle_SuckUP");
+        Pixle_drop = hardwareMap.get(Servo.class, "Pixle_drop");
 
+        Arm_liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        Pixle_SuckUP.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        Arm_liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Arm_liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Arm_liftMotor.setPower(0);
+    }
+    public void yellowPixelRaise(){
+        Arm_liftMotor.setTargetPosition(4500);
+        Arm_liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm_liftMotor.setPower(1);
+    }
+    public void resetArm(){
+        Arm_liftMotor.setTargetPosition(-10);
+        Arm_liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm_liftMotor.setPower(1);
+    }
+    public void yellowPixelDrop(){
+        Pixle_drop.setPosition(.15);
+        sleep(1000);
+        Pixle_drop.setPosition(0);
+        sleep(500);
+    }
 }   // end class
