@@ -39,6 +39,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.List;
 
 /*
@@ -50,6 +52,7 @@ import java.util.List;
  */
 
 public class Vision {
+    public LinearOpMode opMode;
     public boolean rge_found = false;
     public boolean bge_found = false;
     public boolean gameelement_left;
@@ -75,11 +78,10 @@ public class Vision {
      * The variable to store our instance of the vision portal.
      */
     private VisionPortal myVisionPortal;
-    Robot robot;
-    public Vision(Robot robot) {this.robot = robot;
-    }
 
-    public void init() {
+
+
+    public void init(HardwareMap hardwareMap) {
         // -----------------------------------------------------------------------------------------
         // AprilTag Configuration
         // -----------------------------------------------------------------------------------------
@@ -104,7 +106,7 @@ public class Vision {
 
         if (USE_WEBCAM) {
             myVisionPortal = new VisionPortal.Builder()
-                    .setCamera(robot.opMode.hardwareMap.get(WebcamName.class, "Webcam 1"))
+                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .addProcessors(tfod, aprilTag)
                     .build();
         } else {
@@ -118,14 +120,15 @@ public class Vision {
         myVisionPortal.setProcessorEnabled(tfod, false);
         myVisionPortal.setProcessorEnabled(aprilTag, true);
         telemetryAprilTag();
-        robot.opMode.telemetry.update();
+        opMode.telemetry.update();
     }
     public void Get_TFOD(){
         myVisionPortal.setProcessorEnabled(aprilTag, false);
         myVisionPortal.setProcessorEnabled(tfod, true);
         //sleep(20);
         telemetryTfod();
-        robot.opMode.telemetry.update();
+
+        opMode.telemetry.update();
 
     }
     /**
@@ -133,18 +136,18 @@ public class Vision {
      */
     private void telemetryAprilTag() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        robot.opMode.telemetry.addData("# AprilTags Detected", currentDetections.size());
+        opMode.telemetry.addData("# AprilTags Detected", currentDetections.size());
 
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
-                robot.opMode.telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                robot.opMode.telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                robot.opMode.telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                robot.opMode.telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+                opMode.telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                opMode.telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                opMode.telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                opMode.telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
             } else {
-                robot.opMode.telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                robot.opMode.telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+                opMode.telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                opMode.telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
         }   // end for() loop
 
@@ -155,17 +158,17 @@ public class Vision {
      */
     private void telemetryTfod() {
         List<Recognition> currentRecognitions = tfod.getRecognitions();
-        robot.opMode.telemetry.addData("# Objects Detected", currentRecognitions.size());
+        opMode.telemetry.addData("# Objects Detected", currentRecognitions.size());
 
         // Step through the list of recognitions and display info for each one.
         for (Recognition recognition : currentRecognitions) {
             double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
             double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
 
-            robot.opMode.telemetry.addData(""," ");
-            robot.opMode.telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            robot.opMode.telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            robot.opMode.telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            opMode.telemetry.addData(""," ");
+            opMode.telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
+            opMode.telemetry.addData("- Position", "%.0f / %.0f", x, y);
+            opMode.telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
             if (recognition.getLabel() == "RGE"){
                 rge_found = true;
                 gameelement_left = true;
